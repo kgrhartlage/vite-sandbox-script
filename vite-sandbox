@@ -1,0 +1,63 @@
+#!/bin/bash
+
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+directory="$HOME/Desktop"
+sandbox=$(echo "sandbox")
+date=$(date +"%F")
+
+if [[ $# -eq 0 ]]; then
+  folder=$(printf "%s-%s" $sandbox $date)
+  template=$(echo "react")
+elif [[ $# -eq 1 ]]; then
+  folder=$(printf "%s-%s" $sandbox $1)
+  template=$(echo "react")
+else
+  folder=$(printf "%s-%s" $sandbox $1)
+  template=$2
+fi
+
+cd $directory
+yarn create @vitejs/app $folder --template $template
+cd $folder
+
+if [[ $template == "react" ]]; then
+  rm src/logo.svg
+
+  echo -e "*,
+::before,
+::after {
+  box-sizing: border-box;
+}\n\n$(cat src/index.css)" >src/index.css
+
+  echo 'import React from "react";
+import "./App.css";
+
+const App = () => {
+  return (
+    <div className="App">
+      <a
+        href="https://vitejs.dev/guide/features.html"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Vite Docs
+      </a>
+    </div>
+  );
+};
+
+export default App;' >src/App.jsx
+
+  echo ".App {
+  margin-top: 32px;
+  text-align: center;
+}" >src/App.css
+fi
+
+echo -e "
+🥳 ${GREEN}Sandbox created. Let's play!${NC}"
+
+code .
+yarn && yarn dev
